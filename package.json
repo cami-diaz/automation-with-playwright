@@ -18,6 +18,7 @@
   "homepage": "https://github.com/cami-diaz/automation-with-playwright#readme",
   "description": "",
   "devDependencies": {
-    "@playwright/test": "^1.54.0"
+    "@playwright/test": "^1.54.1",
+    "typescript": "^5.8.3"
   }
 }
