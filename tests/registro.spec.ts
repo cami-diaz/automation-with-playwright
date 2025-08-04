@@ -150,7 +150,7 @@ test("TC-10 Verificar comportamiento del front ante un error 500 en el registro"
     "@" +
     TestData.usuario[0].email.split("@")[1];
 
-  // Interceptar la solicitud de registro y devolver un error 500
+  // Intercepta la solicitud de registro y devuelve un error 500
   await page.route("**/api/auth/signup", (route) => {
     route.fulfill({
       status: 409,
@@ -159,15 +159,12 @@ test("TC-10 Verificar comportamiento del front ante un error 500 en el registro"
     });
   });
 
-  // Llenar el formulario. La navegación se hace en beforeEach.
   await registerPage.firstNameInput.fill(TestData.usuario[0].nombre);
   await registerPage.lastNameInput.fill(TestData.usuario[0].apellido);
   await registerPage.emailInput.fill(email);
   await registerPage.passwordInput.fill(TestData.usuario[0].password);
 
-  // Hacer clic en el botón de registro
   await registerPage.registerButton.click();
 
-  // Verificar que se muestra un mensaje de error.
   await expect(page.getByText("Email already in use")).toBeVisible();
 });

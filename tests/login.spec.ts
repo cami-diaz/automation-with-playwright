@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { LoginPage } from "../pages/loginPage";
 import TestData from "../data/testData.json";
 import { DashboardPage } from "../pages/dashboardPage";
+import { BackendUtils } from "../utils/backendUtils";
 
 let loginPage: LoginPage;
 let dashboardPage: DashboardPage;
@@ -21,32 +22,19 @@ test("TC-11 Loguearse con nuevo usuario creado por backend", async ({
   page,
   request,
 }) => {
-  const email =
-    TestData.usuario[0].email.split("@")[0] +
-    Date.now().toString() +
-    "@" +
-    TestData.usuario[0].email.split("@")[1];
-  const response = await request.post("http://localhost:6007/api/auth/signup", {
-    headers: {
-      Accept: "application/vnd.github.v3+json",
-      "Content-Type": "application/json",
-    },
-    data: {
-      firstName: TestData.usuario[0].nombre,
-      lastName: TestData.usuario[0].apellido,
-      email: email,
-      password: TestData.usuario[0].password,
-    },
-  });
-  expect(response.status()).toBe(201);
+  const usuarioBackend = await BackendUtils.crearUsuarioPorAPI(
+    request,
+    TestData.usuario[0]
+  );
+  const nuevoUsuario = {
+    ...usuarioBackend,
+    password: usuarioBackend.password,
+  };
 
   const responsePromiseLogin = page.waitForResponse(
     "http://localhost:6007/api/auth/login"
   );
-  await loginPage.fillAndSubmitForm({
-    email: email,
-    password: TestData.usuario[0].password,
-  });
+  await loginPage.fillAndSubmitForm(nuevoUsuario);
 
   const responseLogin = await responsePromiseLogin;
   const responseBodyLoginJson = await responseLogin.json();
@@ -60,7 +48,7 @@ test("TC-11 Loguearse con nuevo usuario creado por backend", async ({
       id: expect.any(String),
       firstName: TestData.usuario[0].nombre,
       lastName: TestData.usuario[0].apellido,
-      email: email,
+      email: nuevoUsuario.email,
     })
   );
 
