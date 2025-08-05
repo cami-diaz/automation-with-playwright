@@ -15,25 +15,28 @@ export default defineConfig({
 
   projects: [
     {
+      name: "Setup",
+      testMatch: /.*\.setup\.ts/,
+    },
+    {
       name: "Chromium",
       use: {
         browserName: "chromium",
         ...devices["Desktop Chrome"],
       },
+      dependencies: ["Setup"],
     },
-    {
-      name: "Firefox",
-      use: {
-        browserName: "firefox",
-        ...devices["Desktop Firefox"],
-      },
-    },
-    {
-      name: "WebKit",
-      use: {
-        browserName: "webkit",
-        ...devices["Desktop Safari"],
-      },
-    },
+    // {
+    //   name: "Firefox",
+    //   use: {
+    //     browserName: "firefox",
+    //     ...devices["Desktop Firefox"],
+    //   },
+    // },
+    // {
+    //   name: "WebKit",
+    //   use: {
+    //     browserName: "webkit",
+    //     ...devices["Desktop Safari"],
   ],
 });
