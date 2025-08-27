@@ -48,6 +48,9 @@ jobs:
       - name: Instalar wait-on
         run: npm install -g wait-on
 
+      - name: Mostrar log de backend
+        run: cat app/backend/backend.log || echo "No log disponible"
+
       #  Esperar que el backend se levante en el puerto 6007
       - name: Esperar backend
         run: wait-on tcp:6007
