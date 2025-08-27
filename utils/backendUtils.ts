@@ -9,13 +9,20 @@ interface Usuario {
 export class BackendUtils {
   static async crearUsuarioPorAPI(
     request: APIRequestContext,
-    usuario: Usuario
+    usuario: Usuario,
+    esNuevo: boolean = true
   ) {
-    const email =
-      usuario.email.split("@")[0] +
-      Date.now().toString() +
-      "@" +
-      usuario.email.split("@")[1];
+    let email: string;
+
+    if (esNuevo) {
+      email =
+        usuario.email.split("@")[0] +
+        Date.now().toString() +
+        "@" +
+        usuario.email.split("@")[1];
+    } else {
+      email = usuario.email;
+    }
     const response = await request.post(
       "http://localhost:6007/api/auth/signup",
       {

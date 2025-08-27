@@ -88,3 +88,9 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report
+
+      - name: Deployar reportes a github pages
+        if: always()
+        run: git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          npx playwright show-report --host=
