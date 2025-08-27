@@ -37,7 +37,7 @@ testUsuarioRecibe(
   "TC-13 Verificar que el usuario recibe la transferencia",
   async ({ page }) => {
     await expect(dashboardPage.dashboardTitle).toBeVisible();
-    await expect(page.getByText("Transferencia de")).toBeVisible();
+    await expect(page.getByText("Transferencia de ")).toBeVisible();
   }
 );
 
