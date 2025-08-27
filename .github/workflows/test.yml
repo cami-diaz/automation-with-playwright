@@ -63,6 +63,13 @@ jobs:
         env:
           VITE_API_URL: ${{ env.VITE_API_URL }}
 
+      - name: Levantar frontend
+        run: |
+          cd app/frontend
+          npm run dev > frontend.log 2>&1 &
+        env:
+          VITE_API_URL: ${{ env.VITE_API_URL }}
+
       #  Esperar que el frontend se levante en el puerto 3000 -
       - name: Esperar frontend
         run: wait-on tcp:3000
