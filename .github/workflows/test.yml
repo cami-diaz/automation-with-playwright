@@ -107,7 +107,8 @@ jobs:
           git push origin gh-pages
 
       - name: Imprimir link en la consola
-        if: always()        run: |
+        if: always()        
+        run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           cd $RUNNER_TEMP
