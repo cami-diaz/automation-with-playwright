@@ -109,4 +109,4 @@ jobs:
       - name: Imprimir link en la Consola
         if: always()
         run: |
-          echo "Reporte de tests: https://cami-diaz.github.io/redux-athena-bank/report-$GITHUB_RUN_NUMBER/"
+          echo "Reporte de tests: https://cami-diaz.github.io/automation-with-playwright/report-$GITHUB_RUN_NUMBER/"
