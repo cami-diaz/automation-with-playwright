@@ -1,0 +1,112 @@
+name: CI - Clonando App y ejecutando tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      PORT: 6007
+      VITE_API_URL: http://localhost:6007/api
+
+    steps:
+      - name: Checkout repo actual (con el workflow)
+        uses: actions/checkout@v3
+
+      - name: Clonar repo de Athena Redux Bank
+        run: git clone https://github.com/cami-diaz/redux-athena-bank.git app
+
+      - name: Crear archivo .env para el backend
+        run: |
+          echo "MONGO_URI=${{ env.MONGO_URI }}" >> app/backend/.env
+          echo "JWT_SECRET=${{ env.JWT_SECRET }}" >> app/backend/.env
+          echo "PORT=${{ env.PORT }}" >> app/backend/.env
+          echo "VITE_API_URL=${{ env.VITE_API_URL }}" >> app/backend/.env
+
+      - name: Instalar dependencias de backend
+        run: |
+          cd app/backend
+          npm install
+
+      - name: Construir backend
+        run: |
+          cd app/backend
+          npm run dev > backend.log 2>&1 &
+
+      #  Se instala la herramienta wait-on globalmente
+      - name: Instalar wait-on
+        run: npm install -g wait-on
+
+      - name: Mostrar log de backend
+        run: cat app/backend/backend.log || echo "No log disponible"
+
+      #  Esperar que el backend se levante en el puerto 6007
+      - name: Esperar backend
+        run: wait-on tcp:6007
+
+      #  Instalar dependencias de frontend
+      - name: Instalar dependencias de frontend
+        run: |
+          cd app/frontend
+          npm install
+        env:
+          VITE_API_URL: ${{ env.VITE_API_URL }}
+
+      #  Levantar el frontend
+      - name: Levantar frontend
+        run: |
+          cd app/frontend
+          npm run dev > frontend.log 2>&1 &
+        env:
+          VITE_API_URL: ${{ env.VITE_API_URL }}
+
+      #  Esperar que el frontend se levante en el puerto 3000 -
+      - name: Esperar frontend
+        run: wait-on tcp:3000
+
+      #  Instalar y ejecutar tests
+      - name: Instalar y ejecutar tests
+        run: |
+          npm install
+          npx playwright install --with-deps
+          npx playwright test --reporter=html
+
+      - name: Guardar reportes como artefactos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+
+      - name: Deployar reportes a github pages
+        if: always()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          cd $RUNNER_TEMP
+          git clone --depth=1 --branch=gh-pages https://x-access-token:${{ secrets.GH_PAGES_PAT }}@github.com/${{ github.repository }} gh-pages
+
+          cd gh-pages
+          rm -rf ./*
+          mkdir -p report-$GITHUB_RUN_NUMBER
+          cp -r $GITHUB_WORKSPACE/playwright-report/* ./report-$GITHUB_RUN_NUMBER/
+
+          git add .
+          git commit -m "Reporte playwright - BUILD $GITHUB_RUN_NUMBER"
+          git push origin gh-pages
+
+      - name: Imprimir link en la Consola
+        if: always()
+        run: |
+          echo "Reporte de tests: https://cami-diaz.github.io/automation-with-playwright/report-$GITHUB_RUN_NUMBER/"
