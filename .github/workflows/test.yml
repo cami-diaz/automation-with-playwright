@@ -106,7 +106,7 @@ jobs:
           git commit -m "Reporte playwright - BUILD $GITHUB_RUN_NUMBER"
           git push origin gh-pages
 
-      - name: Imprimir link en la consola
+      - name: Imprimir link en la Consola
         if: always()
         run: |
           echo "Reporte de tests: https://cami-diaz.github.io/redux-athena-bank/report-$GITHUB_RUN_NUMBER/"
